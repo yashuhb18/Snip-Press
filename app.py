@@ -1,10 +1,15 @@
 from flask import Flask, request, redirect, render_template
+from werkzeug.middleware.proxy_fix import ProxyFix
 import sqlite3
 import random
 import string
 import os
 
 app = Flask(__name__)
+
+# Trust X-Forwarded-* from Render/Railway/Fly/nginx so short URLs use https://
+if os.environ.get("BEHIND_PROXY", "").lower() in ("1", "true", "yes"):
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Create data folder if it doesn't exist
 os.makedirs("data", exist_ok=True)
@@ -85,6 +90,7 @@ def redirect_url(short):
     return "URL not found"
 
 
-# Run Flask App
+# Run Flask App (local dev only — production uses gunicorn in Dockerfile)
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=os.environ.get("FLASK_DEBUG") == "1")

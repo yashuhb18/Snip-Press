@@ -1,0 +1,18 @@
+# Render Blueprint — deploy from GitHub: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: snip-press
+    runtime: docker
+    plan: free
+    region: oregon
+    healthCheckPath: /
+    envVars:
+      - key: BEHIND_PROXY
+        value: "true"
+      - key: PORT
+        value: "5000"
+    # Optional: persistent SQLite (requires paid instance on Render)
+    # disk:
+    #   name: snip-data
+    #   mountPath: /app/data
+    #   sizeGB: 1

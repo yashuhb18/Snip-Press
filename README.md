@@ -4,7 +4,8 @@ A minimal URL shortener with a **neo-brutalist print-shop** frontend, built with
 
 Paste a long link → get a short link → share it. No accounts, no extra services.
 
-**Live repo:** [github.com/yashuhb18/Snip-Press](https://github.com/yashuhb18/Snip-Press)
+**Repository:** [github.com/yashuhb18/Snip-Press](https://github.com/yashuhb18/Snip-Press)  
+**Live demo:** _Deploy once — add your URL here (see [DEPLOY.md](DEPLOY.md))_
 
 ---
 
@@ -26,7 +27,28 @@ Paste a long link → get a short link → share it. No accounts, no extra servi
 | Backend   | Python 3.11, Flask 3 |
 | Database  | SQLite            |
 | Frontend  | HTML, CSS, vanilla JS |
-| Deploy    | Docker            |
+| Deploy    | Docker, Gunicorn  |
+| Production | Render / Railway / Fly.io / VPS |
+
+---
+
+## Go live (HTTPS for everyone)
+
+Localhost only runs on your PC. To make this a **public full-stack app** with `https://`:
+
+1. Use a cloud host (Render is the easiest — free HTTPS URL included).
+2. Connect your GitHub repo and deploy the `Dockerfile`.
+3. Set `BEHIND_PROXY=true` so short links use `https://your-domain.com/...`.
+
+**Step-by-step guide:** [DEPLOY.md](DEPLOY.md)
+
+**Fast path (Render):**
+
+1. Sign up at [render.com](https://render.com)  
+2. **New → Blueprint** → connect **Snip-Press** on GitHub  
+3. Deploy → open `https://snip-press-xxxx.onrender.com`  
+
+Optional: add a custom domain in Render settings — SSL is automatic.
 
 ---
 
@@ -89,7 +111,10 @@ Short links use your server host, e.g. `http://localhost:5000/aB3xY9`.
 Snip-Press/
 ├── app.py                 # Flask routes & SQLite logic
 ├── requirements.txt
-├── Dockerfile
+├── Dockerfile             # Production image (Gunicorn)
+├── render.yaml            # Render.com blueprint
+├── DEPLOY.md              # Full deployment guide (HTTPS)
+├── .env.example
 ├── templates/
 │   └── index.html         # Main UI (Jinja2)
 ├── static/
@@ -105,9 +130,11 @@ Snip-Press/
 
 | Setting        | Default              | Notes                          |
 |----------------|----------------------|--------------------------------|
-| Port           | `5000`               | Set in `app.py` / Docker `EXPOSE` |
+| Port           | `5000`               | Override with `PORT` env on cloud hosts |
 | Short code length | `6` characters    | Defined in `app.py`            |
-| Database path  | `data/urls.db`       | Auto-created on first run      |
+| Database path  | `data/urls.db`       | Auto-created on first run; use a volume in production |
+| `BEHIND_PROXY` | unset (local)        | Set `true` on Render/Railway/Fly for correct HTTPS short URLs |
+| Server (prod)  | Gunicorn             | Started via `Dockerfile`       |
 
 ---
 
