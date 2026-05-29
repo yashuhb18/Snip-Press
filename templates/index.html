@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Shorten long URLs — fast, bold, no fluff.">
+    <title>SNIP·PRESS — URL Shortener</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="press-bg" aria-hidden="true">
+        <div class="halftone"></div>
+        <span class="reg-mark reg-mark--tl"></span>
+        <span class="reg-mark reg-mark--tr"></span>
+        <span class="reg-mark reg-mark--bl"></span>
+        <span class="reg-mark reg-mark--br"></span>
+        <div class="ink-blob ink-blob--1"></div>
+        <div class="ink-blob ink-blob--2"></div>
+    </div>
+
+    <div class="marquee-wrap" aria-hidden="true">
+        <div class="marquee">
+            <span>SNIP IT · SHIP IT · SNIP IT · SHIP IT · SNIP IT · SHIP IT · SNIP IT · SHIP IT ·&nbsp;</span>
+            <span>SNIP IT · SHIP IT · SNIP IT · SHIP IT · SNIP IT · SHIP IT · SNIP IT · SHIP IT ·&nbsp;</span>
+        </div>
+    </div>
+
+    <header class="top-bar">
+        <div class="logo-lockup">
+            <span class="logo-mark" aria-hidden="true">▣</span>
+            <span class="logo-text">SNIP<em>·</em>PRESS</span>
+        </div>
+        <span class="edition-tag">Vol. 01 — 2026</span>
+    </header>
+
+    <main class="layout">
+        <aside class="hero-side" aria-hidden="true">
+            <p class="hero-kicker">Link shortening</p>
+            <h2 class="hero-stack">
+                <span class="hero-word" data-word="CUT">CUT</span>
+                <span class="hero-word hero-word--accent" data-word="THE">THE</span>
+                <span class="hero-word" data-word="NOISE">NOISE</span>
+            </h2>
+            <div class="hero-rule"></div>
+            <p class="hero-caption">Paste. Press. Done.<br>No account. No tracking theater.</p>
+        </aside>
+
+        <section class="workspace">
+            <div class="machine-card">
+                <header class="card-head">
+                    <span class="card-num">№ 001</span>
+                    <h1 class="card-title">Drop your URL in the press</h1>
+                    <p class="card-sub">We stamp out a short link you can share anywhere.</p>
+                </header>
+
+                <form class="shorten-form" method="POST" id="shorten-form" novalidate>
+                    <div class="field-block">
+                        <label class="field-label" for="url-input">
+                            <span class="label-index">01</span>
+                            Original URL
+                        </label>
+                        <div class="field-shell">
+                            <input
+                                class="url-input"
+                                type="text"
+                                name="url"
+                                id="url-input"
+                                placeholder="https://yoursite.com/very/long/path"
+                                required
+                                autocomplete="url"
+                                inputmode="url">
+                        </div>
+                    </div>
+                    <button class="btn-press" type="submit" id="submit-btn">
+                        <span class="btn-face">
+                            <span class="btn-spinner" aria-hidden="true"></span>
+                            <span class="btn-text">STAMP SHORT LINK</span>
+                            <span class="btn-arrow" aria-hidden="true">→</span>
+                        </span>
+                    </button>
+                </form>
+
+                {% if short_url %}
+                <section class="ticket-out" aria-live="polite">
+                    <div class="ticket-stub">
+                        <div class="ticket-perforation" aria-hidden="true"></div>
+                        <div class="ticket-body">
+                            <div class="stamp stamp--animate" aria-hidden="true">
+                                <span>STAMPED</span>
+                            </div>
+                            <p class="ticket-label">Output · Short link</p>
+                            <div class="ticket-url-row">
+                                <a class="ticket-url" href="{{ short_url }}" id="short-url-link" target="_blank" rel="noopener noreferrer">
+                                    {{ short_url }}
+                                </a>
+                            </div>
+                            <div class="ticket-actions">
+                                <button type="button" class="btn-copy" id="copy-btn" data-copy-target="short-url-link" aria-label="Copy shortened URL">
+                                    <span class="copy-icon" aria-hidden="true">⧉</span>
+                                    <span class="copy-btn-text">COPY LINK</span>
+                                </button>
+                                <span class="ticket-meta">Ready to share</span>
+                            </div>
+                            <p class="copy-feedback" id="copy-feedback" role="status"></p>
+                        </div>
+                        <div class="ticket-barcode" aria-hidden="true">
+                            <span></span><span></span><span></span><span></span><span></span>
+                            <span></span><span></span><span></span><span></span><span></span>
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+
+                <ul class="spec-list" aria-label="How it works">
+                    <li><strong>01</strong> Paste URL</li>
+                    <li><strong>02</strong> Hit stamp</li>
+                    <li><strong>03</strong> Share short link</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p>SNIP·PRESS — Flask + Docker</p>
+        <p class="footer-fine">Designed like a print shop, not a SaaS template.</p>
+    </footer>
+
+    <script>
+        (function () {
+            var form = document.getElementById('shorten-form');
+            var submitBtn = document.getElementById('submit-btn');
+
+            if (form && submitBtn) {
+                form.addEventListener('submit', function () {
+                    submitBtn.classList.add('is-loading');
+                    submitBtn.disabled = true;
+                });
+            }
+
+            var copyBtn = document.getElementById('copy-btn');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', function () {
+                    var targetId = copyBtn.getAttribute('data-copy-target');
+                    var linkEl = document.getElementById(targetId);
+                    var feedback = document.getElementById('copy-feedback');
+                    var text = linkEl ? linkEl.textContent.trim() : '';
+
+                    function showSuccess() {
+                        copyBtn.classList.add('is-copied');
+                        var label = copyBtn.querySelector('.copy-btn-text');
+                        if (label) label.textContent = 'COPIED ✓';
+                        if (feedback) {
+                            feedback.textContent = '→ Pasted to clipboard.';
+                            feedback.classList.add('is-visible');
+                        }
+                        document.querySelector('.stamp')?.classList.add('stamp--pop');
+                        setTimeout(function () {
+                            copyBtn.classList.remove('is-copied');
+                            if (label) label.textContent = 'COPY LINK';
+                            if (feedback) {
+                                feedback.textContent = '';
+                                feedback.classList.remove('is-visible');
+                            }
+                        }, 2200);
+                    }
+
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(showSuccess).catch(fallbackCopy);
+                    } else {
+                        fallbackCopy();
+                    }
+
+                    function fallbackCopy() {
+                        var ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.setAttribute('readonly', '');
+                        ta.style.position = 'absolute';
+                        ta.style.left = '-9999px';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        try {
+                            document.execCommand('copy');
+                            showSuccess();
+                        } catch (e) {
+                            if (feedback) feedback.textContent = 'Copy failed — select the link manually.';
+                        }
+                        document.body.removeChild(ta);
+                    }
+                });
+            }
+
+            var words = document.querySelectorAll('.hero-word');
+            words.forEach(function (el, i) {
+                el.style.animationDelay = (i * 0.12) + 's';
+            });
+        })();
+    </script>
+</body>
+</html>
